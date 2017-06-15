@@ -1,0 +1,8 @@
+D:\projects\c#\diffraction\diffraction\bin\Debug\diffraction.exe
+D:\projects\c#\diffraction\diffraction\bin\Debug\diffraction.pdb
+D:\projects\c#\diffraction\diffraction\obj\Debug\diffraction.csprojResolveAssemblyReference.cache
+D:\projects\c#\diffraction\diffraction\obj\Debug\diffraction.Form1.resources
+D:\projects\c#\diffraction\diffraction\obj\Debug\diffraction.Properties.Resources.resources
+D:\projects\c#\diffraction\diffraction\obj\Debug\diffraction.csproj.GenerateResource.Cache
+D:\projects\c#\diffraction\diffraction\obj\Debug\diffraction.exe
+D:\projects\c#\diffraction\diffraction\obj\Debug\diffraction.pdb
