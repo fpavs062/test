@@ -18,7 +18,7 @@ namespace diffraction
         {
             InitializeComponent();
             colorConverter = new ColorConverter();
-            label2.Text = string.Format("{0}", DistanceToAmplitude(1/6D, 2));
+            label2.Text="390нм";
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -34,8 +34,7 @@ namespace diffraction
                 pictureBox1.Image = null;
             }
             pictureBox1.Image = b;
-            if (pictureBox2.Image != null)
-            {
+            if (pictureBox2.Image != null) {
                 pictureBox2.Image.Dispose();
                 pictureBox2.Image = null;
             }
@@ -70,42 +69,50 @@ namespace diffraction
             lambda *= 1e-9;
             NumberFormatInfo nfo=new NumberFormatInfo();
             nfo.NumberDecimalSeparator = ".";
-            double length_ = double.Parse(textBox1.Text,nfo);
+            double length; //расстояние то источника до препядствия
+            double length_; //расстояние от экрана до препядствия
+            length_ = double.Parse(textBox1.Text, nfo);
+            length = double.Parse(textBox2.Text, nfo);
             double radius;
             double ppm = 66600;//количество пикселей на метр
             Point center = new Point(b.Width / 2, b.Height / 2);
-            int fzc = 271;
+            int fzc = 39000;
             double[] frenelZones = new double[fzc];
             for (int i = 0; i < fzc; i++)
             {
-                radius = getFZRadius(i, length_, lambda);
+                radius = getFZRadius(i,length, length_, lambda);
                 frenelZones[i] = radius;
                 g.DrawEllipse(new Pen(Color.Black, 1F), (float)(center.X - radius * ppm), (float)(center.Y - radius * ppm), (float)(radius * ppm * 2), (float)(radius * ppm * 2));
-             
+                
             }
-            double intensivity = 0.5;
+            double amplitude = 0.5;
             g2.Clear(Color.White);
             center = new Point(b2.Width / 2, b2.Height / 2);
             for (int i = 0; i < b2.Height; i++)
             {
-                //intensivity = Math.Sin(0.05 * i);
-                intensivity = 0;
-                for (int j = 0; j < fzc - 1; j++){
+               // intensivity = Math.Sin(0.05 * i);
 
-                    radius = (frenelZones[j] + frenelZones[j + 1]) / 2;
+                amplitude = 0;
+                for (int j = 0; j < fzc ; j++){
 
-                    intensivity += Math.Pow(-1, j % 2) * Math.Sqrt(length_ * length_ + radius * radius);
+                    //radius = (frenelZones[j] + frenelZones[j + 1]) / 2;
+                    radius = frenelZones[j];
+                    amplitude += Math.Pow(-1, j % 2) * (length_ / Math.Sqrt(length_ * length_ + radius * radius));
                 }
-                b2.SetPixel(center.X, i, Color.Green);  
-                b2.SetPixel(center.X + (int)(100 * intensivity), i, Color.Black);  
+                b2.SetPixel(center.X, i, Color.Green);
+                b2.SetPixel(center.X+100, i, Color.Green);  
+                b2.SetPixel(center.X + (int)(100 * amplitude), i, Color.Black);  
             }
             
         }
         double DistanceToAmplitude(double d,double lambda){
             return Math.Sin(2 * Math.PI * (d % lambda) / lambda);
         }
-        double getFZRadius(int zn, double distance,double lambda){
-            return Math.Sqrt(distance * zn * lambda + Math.Pow(zn * lambda, 2) / 4);
+        double getFZRadius(int zn,double dist_s, double dist_d,double lambda){
+            double hm=(dist_d * zn * lambda + Math.Pow(zn * lambda / 2, 2)) / (2 * (dist_s + dist_s));
+
+            return Math.Sqrt(2 * hm + hm * hm); ; 
+            // return Math.Sqrt(distance * zn * lambda + Math.Pow(zn * lambda, 2) / 4);
         }
         public double getAmplitude(int frenelZone, double coveradge)
         {
@@ -115,6 +122,11 @@ namespace diffraction
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
             label2.Text = trackBar1.Value.ToString()+"нм";
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }
