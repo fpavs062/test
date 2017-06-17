@@ -80,7 +80,7 @@ namespace diffraction
             double fzCount=Math.Pow(holeRadius, 2) / lambda * (1 / length + 1 / length_);
             int fzc = 39000;
             fzc = (int)fzCount+1;
-            double[] frenelZones = new double[fzc*100];
+            double[] frenelZones = new double[fzc*3];
             for (int i = 0; i < frenelZones.Length; i++)
             {
                 radius = getFZRadius(i,length, length_, lambda);
@@ -97,7 +97,7 @@ namespace diffraction
             double shift=0;
             for (int i = 0; i < b2.Height/2; i++) {
                 amplitude = 0;
-                for (int j = 1; j <= (Math.Pow(holeRadius+shift, 2) / lambda * (1 / length + 1 / length_)); j++)
+                for (int j = 1; j <= fzc; j++)
                 {
                     
                     //radius = (frenelZones[j] + frenelZones[j + 1]) / 2;
@@ -132,11 +132,12 @@ namespace diffraction
         double GetCoveradge(double fzRadius,double fzRadius_, double hole_radius, double shift)
         {
             double coveredge = 0d;
+          
             if (hole_radius + shift >= fzRadius){
-                if (hole_radius >= shift)
+                if (hole_radius >= shift )
                 {
-                    coveredge += 0.5;
-                }
+                  coveredge += 0.5;
+                }  
             }else if (hole_radius + shift > fzRadius_){
                 coveredge += Math.Pow((hole_radius + shift-fzRadius_) / (fzRadius - fzRadius_),2) / 2;
             }
