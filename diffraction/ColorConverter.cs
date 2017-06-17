@@ -52,11 +52,24 @@ namespace diffraction
             double g = (-0.9692660 * xc.X) + (1.8760108 * xc.Y) + (0.0415560 * xc.Z);
             double b = (0.0556434 * xc.X) + (-0.2040259 * xc.Y) + (1.0572252 * xc.Z);
             //костыль!!!!!:
-            double gamma = 2.2f;
-            r = Math.Abs(Math.Pow(r,1f/gamma));
-            g = Math.Abs(Math.Pow(g, 1f / gamma));
-            b = Math.Abs(Math.Pow(b, 1f / gamma))
-; return Color.FromArgb(0xff, (int)Math.Round(r * 0xff, 0), (int)Math.Round(g * 0xff, 0), (int)Math.Round(b * 0xff, 0));
+           // double gamma = 2.2f;
+            if (r < 0){
+                r = 0;
+            }else if (r > 1){
+                r = 1;
+            }
+            if (g < 0)
+            {
+                g = 0;
+            } else if (g > 1) {
+                g= 1;
+            }
+            if (b < 0){
+                b = 0;
+            } else if (b > 1) {
+                b = 1;
+            }
+            return Color.FromArgb(0xff, (int)Math.Round(r * 0xff, 0), (int)Math.Round(g * 0xff, 0), (int)Math.Round(b * 0xff, 0));
         }
     }
 }

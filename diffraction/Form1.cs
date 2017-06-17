@@ -69,6 +69,7 @@ namespace diffraction
             lambda *= 1e-9;
             NumberFormatInfo nfo=new NumberFormatInfo();
             nfo.NumberDecimalSeparator = ".";
+            double holeRadius = double.Parse(textBox3.Text, nfo) * 1e-3;
             double length; //расстояние то источника до препядствия
             double length_; //расстояние от экрана до препядствия
             length_ = double.Parse(textBox1.Text, nfo);
@@ -76,32 +77,46 @@ namespace diffraction
             double radius;
             double ppm = 66600;//количество пикселей на метр
             Point center = new Point(b.Width / 2, b.Height / 2);
+            double fzCount=Math.Pow(holeRadius, 2) / lambda * (1 / length + 1 / length_);
             int fzc = 39000;
-            double[] frenelZones = new double[fzc];
-            for (int i = 0; i < fzc; i++)
+            fzc = (int)fzCount+1;
+            double[] frenelZones = new double[fzc*100];
+            for (int i = 0; i < frenelZones.Length; i++)
             {
                 radius = getFZRadius(i,length, length_, lambda);
                 frenelZones[i] = radius;
                 g.DrawEllipse(new Pen(Color.Black, 1F), (float)(center.X - radius * ppm), (float)(center.Y - radius * ppm), (float)(radius * ppm * 2), (float)(radius * ppm * 2));
                 
             }
+            g.DrawEllipse(new Pen(Color.Blue, 1F), (float)(center.X - holeRadius * ppm), (float)(center.Y - holeRadius * ppm), (float)(holeRadius * ppm * 2), (float)(holeRadius * ppm * 2));
+
             double amplitude = 0.5;
             g2.Clear(Color.White);
             center = new Point(b2.Width / 2, b2.Height / 2);
-            for (int i = 0; i < b2.Height; i++)
-            {
-               // intensivity = Math.Sin(0.05 * i);
-
+            double coveradge = 1;
+            double shift=0;
+            for (int i = 0; i < b2.Height/2; i++) {
                 amplitude = 0;
-                for (int j = 0; j < fzc ; j++){
-
+                for (int j = 1; j <= (Math.Pow(holeRadius+shift, 2) / lambda * (1 / length + 1 / length_)); j++)
+                {
+                    
                     //radius = (frenelZones[j] + frenelZones[j + 1]) / 2;
                     radius = frenelZones[j];
-                    amplitude += Math.Pow(-1, j % 2) * (length_ / Math.Sqrt(length_ * length_ + radius * radius));
+                    shift = ((double)i) / ppm/2;
+                    
+                    double k = Math.Cos(Math.Acos(length_ / Math.Sqrt(length_ * length_ + radius * radius)));
+                    coveradge = GetCoveradge(frenelZones[j],frenelZones[j-1],holeRadius,shift);
+
+                    amplitude += Math.Pow(-1, (j+1) % 2) * k*coveradge;
+                    if (amplitude > 0.9 && amplitude < 0.95)
+                    {
+                        Console.WriteLine();
+                    }
                 }
                 b2.SetPixel(center.X, i, Color.Green);
-                b2.SetPixel(center.X+100, i, Color.Green);  
-                b2.SetPixel(center.X + (int)(100 * amplitude), i, Color.Black);  
+                b2.SetPixel(center.X+100, i, Color.Green);
+                b2.SetPixel(center.X + (int)(100 * amplitude), center.Y- i, Color.Black);
+                b2.SetPixel(center.X + (int)(100 * amplitude), center.Y + i, Color.Black);
             }
             
         }
@@ -114,6 +129,27 @@ namespace diffraction
             return Math.Sqrt(2 * hm + hm * hm); ; 
             // return Math.Sqrt(distance * zn * lambda + Math.Pow(zn * lambda, 2) / 4);
         }
+        double GetCoveradge(double fzRadius,double fzRadius_, double hole_radius, double shift)
+        {
+            double coveredge = 0d;
+            if (hole_radius + shift >= fzRadius){
+                if (hole_radius >= shift)
+                {
+                    coveredge += 0.5;
+                }
+            }else if (hole_radius + shift > fzRadius_){
+                coveredge += Math.Pow((hole_radius + shift-fzRadius_) / (fzRadius - fzRadius_),2) / 2;
+            }
+            if (hole_radius - shift >= fzRadius)
+            {
+                coveredge += 0.5;
+            }
+            else if (hole_radius - shift > fzRadius_)
+            {
+                coveredge += Math.Pow((hole_radius - shift-fzRadius_) / (fzRadius - fzRadius_),2) / 2;
+            }
+            return coveredge;
+        }
         public double getAmplitude(int frenelZone, double coveradge)
         {
 
@@ -125,6 +161,11 @@ namespace diffraction
         }
 
         private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label5_Click(object sender, EventArgs e)
         {
 
         }
